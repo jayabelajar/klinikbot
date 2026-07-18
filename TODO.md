@@ -1,7 +1,6 @@
-# TODO - Fix typecheck error BookingStatus / QueueStatus + Documentation
+# TODO - Setup Env Bot WA
 
-- [x] Regenerate Prisma Client for `@klinikbot/database`
-- [x] Run workspace typecheck (`pnpm -r typecheck`)
-- [x] Verify BookingStatus/QueueStatus error resolved
-- [x] Create root `README.md` with setup/config/run guide
-- [ ] (Optional) Silence TS deprecation warning by updating `ignoreDeprecations` to `"6.0"` in `tsconfig.base.json`
+- [x] Identifikasi variabel env yang dipakai bot dari `packages/config/src/index.ts`
+- [x] Buat file `.env` di root workspace dengan nilai default local development
+- [x] Validasi command menjalankan bot WA via pnpm filter
+- [x] Finalisasi checklist

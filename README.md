@@ -43,10 +43,16 @@ pnpm install
 
 Buat file `.env` sesuai kebutuhan Prisma/API.
 
-Minimal wajib untuk database:
+Minimal wajib untuk database (Supabase PostgreSQL), contoh:
 
 ```env
-DATABASE_URL="postgresql://USER:PASSWORD@HOST:5432/DBNAME?schema=public"
+# Disarankan untuk aplikasi (pooled connection)
+DATABASE_URL="postgresql://postgres.[PROJECT_REF]:[PASSWORD]@aws-0-[REGION].pooler.supabase.com:6543/postgres?pgbouncer=true&connection_limit=1&sslmode=require"
+```
+
+Alternatif direct connection (biasanya untuk migration/DDL):
+```env
+DATABASE_URL="postgresql://postgres:[PASSWORD]@db.[PROJECT_REF].supabase.co:5432/postgres?sslmode=require"
 ```
 
 Untuk API JWT secret (sesuaikan dengan implementasi config package):

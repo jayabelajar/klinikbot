@@ -1,0 +1,15 @@
+{
+  "clinicName": "Klinik Sehat Sentosa",
+  "address": "Jl. Raya Sehat No. 123, Kota Bandung",
+  "phone": "081234567890",
+  "operatingHours": "Senin - Sabtu (08:00 - 20:00)",
+  "googleMapsUrl": "https://maps.google.com/?q=Klinik+Sehat+Sentosa",
+  "whatsappTemplates": {
+    "welcome": "Selamat datang di *KlinikBot* 🏥\nSilakan pilih menu:\n1. Daftar Berobat\n2. Booking Jadwal\n3. Cek Antrian\n4. Jadwal Dokter\n5. Informasi Klinik\n6. Hubungi Admin",
+    "registrationSuccess": "Registrasi Pasien Sukses! 🎉\n\nNama: {name}\nKode Pasien: {code}\nNo HP: {phone}\n\nSilakan gunakan Kode Pasien ini untuk melakukan Booking Jadwal.",
+    "bookingSuccess": "Booking Jadwal Sukses! 🗓️\n\nKode Booking: {bookingId}\nPasien: {patientName}\nDokter: {doctorName}\nTanggal: {date}\nJam: {time}\n\nKetik *3* atau *CEK#{bookingId}* untuk memantau status antrian Anda.",
+    "queueCall": "Panggilan Antrian 🔔\n\nNomor Antrian: *{queueNumber}*\nAtas Nama: {patientName}\n\nSilakan menuju ke ruang pemeriksaan sekarang.",
+    "queueSkip": "Antrian Anda dengan Nomor *{queueNumber}* telah dilewati karena tidak hadir saat dipanggil. Silakan hubungi bagian pendaftaran untuk mengatur ulang antrian Anda.",
+    "clinicInfo": "🏥 *{clinicName}*\n📍 Alamat: {address}\n🕗 Jam Operasional: {operatingHours}\n☎️ Telepon: {phone}\n🗺️ Maps: {googleMapsUrl}"
+  }
+}

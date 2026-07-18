@@ -1,105 +1,135 @@
-import axios from "axios";
+import makeWASocket, {
+  DisconnectReason,
+  useMultiFileAuthState
+} from "@whiskeysockets/baileys";
+import path from "path";
+import fs from "fs";
+import pino from "pino";
+import qrcode from "qrcode-terminal";
+import http from "http";
 import { appConfig } from "@klinikbot/config";
+import { handleIncomingMessage } from "./flows/handler";
 
-type MainMenuKey =
-  | "1"
-  | "2"
-  | "3"
-  | "4"
-  | "5"
-  | "6";
+// Logger for Baileys - set to silent or warn to avoid spamming the console
+const logger = pino({ level: "silent" });
 
-const mainMenu = `Selamat datang di *KlinikBot* 🏥
-Silakan pilih menu:
-1. Daftar Berobat
-2. Booking Jadwal
-3. Cek Antrian
-4. Jadwal Dokter
-5. Informasi Klinik
-6. Hubungi Admin`;
+let sock: any = null;
 
-const api = axios.create({
-  baseURL: appConfig.bot.apiBaseUrl,
-  timeout: 5000
+async function connectToWhatsApp() {
+  const sessionDir = path.resolve(process.cwd(), "whatsapp_session");
+  if (!fs.existsSync(sessionDir)) {
+    fs.mkdirSync(sessionDir, { recursive: true });
+  }
+
+  const { state, saveCreds } = await useMultiFileAuthState(sessionDir);
+
+  sock = makeWASocket({
+    auth: state,
+    printQRInTerminal: false, // We will manually print it with qrcode-terminal
+    logger
+  });
+
+  sock.ev.on("connection.update", (update: any) => {
+    const { connection, lastDisconnect, qr } = update;
+    if (qr) {
+      console.log("\n================ WHATSAPP LOGIN QR ================");
+      console.log("Scan QR code below with your WhatsApp to log in:");
+      qrcode.generate(qr, { small: true });
+      console.log("===================================================\n");
+    }
+
+    if (connection === "close") {
+      const shouldReconnect =
+        (lastDisconnect?.error as any)?.output?.statusCode !==
+        DisconnectReason.loggedOut;
+      console.log(
+        "WhatsApp connection closed due to",
+        lastDisconnect?.error?.message || lastDisconnect?.error,
+        ", reconnecting:",
+        shouldReconnect
+      );
+      if (shouldReconnect) {
+        connectToWhatsApp();
+      }
+    } else if (connection === "open") {
+      console.log("WhatsApp connection successfully established!");
+    }
+  });
+
+  sock.ev.on("creds.update", saveCreds);
+
+  sock.ev.on("messages.upsert", async (m: any) => {
+    if (m.type !== "notify") return;
+    for (const msg of m.messages) {
+      if (!msg.key.fromMe && msg.message) {
+        const from = msg.key.remoteJid;
+        if (!from) continue;
+        
+        // Extract text message content
+        const text =
+          msg.message.conversation ||
+          msg.message.extendedTextMessage?.text ||
+          "";
+
+        if (!text) continue;
+
+        const phone = from.split("@")[0];
+        console.log(`Received message from ${phone}: ${text}`);
+
+        try {
+          const response = await handleIncomingMessage(phone, text);
+          await sock.sendMessage(from, { text: response });
+        } catch (error: any) {
+          console.error("Error processing message:", error.message);
+        }
+      }
+    }
+  });
+}
+
+// Start WhatsApp Client
+connectToWhatsApp().catch((err) => console.error("Error starting bot:", err));
+
+// Start built-in HTTP Server for outbound messages (notifications, queue calls)
+const server = http.createServer((req, res) => {
+  if (req.method === "POST" && req.url === "/send") {
+    let body = "";
+    req.on("data", chunk => {
+      body += chunk.toString();
+    });
+    req.on("end", async () => {
+      try {
+        const { phone, message } = JSON.parse(body);
+        if (!phone || !message) {
+          res.writeHead(400, { "Content-Type": "application/json" });
+          res.end(JSON.stringify({ error: "Missing phone or message" }));
+          return;
+        }
+
+        if (!sock) {
+          res.writeHead(503, { "Content-Type": "application/json" });
+          res.end(JSON.stringify({ error: "WhatsApp client not initialized" }));
+          return;
+        }
+
+        const jid = `${phone}@s.whatsapp.net`;
+        await sock.sendMessage(jid, { text: message });
+        console.log(`Sent outbound WhatsApp to ${phone}: ${message}`);
+        
+        res.writeHead(200, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ success: true }));
+      } catch (error: any) {
+        console.error("Failed to send outbound message:", error.message);
+        res.writeHead(500, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ error: error.message }));
+      }
+    });
+  } else {
+    res.writeHead(404, { "Content-Type": "application/json" });
+    res.end(JSON.stringify({ error: "Not Found" }));
+  }
 });
 
-const clinicInfo = `📍 Alamat: Klinik Sehat Sentosa
-🕗 Jam Operasional: 08:00 - 20:00
-☎️ Telepon: 0812-3456-7890
-🗺️ Maps: https://maps.google.com`;
-
-export const handleIncomingMessage = async (
-  phone: string,
-  text: string
-): Promise<string> => {
-  const normalized = text.trim();
-
-  if (normalized.toLowerCase() === "menu" || normalized.toLowerCase() === "halo") {
-    return mainMenu;
-  }
-
-  if (["1", "2", "3", "4", "5", "6"].includes(normalized)) {
-    const key = normalized as MainMenuKey;
-
-    switch (key) {
-      case "1":
-        return `*Daftar Berobat*
-Format:
-Nama, TglLahir(YYYY-MM-DD), JenisKelamin(MALE/FEMALE), NoHP, Keluhan, Pembayaran(BPJS/UMUM)
-
-Contoh:
-Budi, 1999-01-01, MALE, 08123456789, Demam 2 hari, UMUM`;
-
-      case "2":
-        return `*Booking Jadwal*
-Kirim format:
-ID_PASIEN, ID_DOKTER, TANGGAL(YYYY-MM-DD), JAM(HH:mm), KELUHAN, PEMBAYARAN(BPJS/UMUM)`;
-
-      case "3":
-        return `*Cek Antrian*
-Kirim: CEK#ID_BOOKING`;
-
-      case "4": {
-        const doctors = await api.get("/doctors").then((r) => r.data as Array<{ name: string; specialization: string; schedule: string }>);
-        if (!doctors.length) return "Belum ada jadwal dokter tersedia.";
-        return doctors
-          .map((d, i) => `${i + 1}. ${d.name} (${d.specialization}) - ${d.schedule}`)
-          .join("\n");
-      }
-
-      case "5":
-        return clinicInfo;
-
-      case "6":
-        return "Admin akan segera menghubungi Anda. Mohon tunggu ya 🙏";
-    }
-  }
-
-  if (normalized.startsWith("CEK#")) {
-    const bookingId = normalized.replace("CEK#", "").trim();
-    try {
-      const queues = await api.get("/queues").then((r) => r.data as Array<any>);
-      const item = queues.find((q) => q.bookingId === bookingId);
-      if (!item) return "Data antrian tidak ditemukan.";
-      return `Nomor antrian Anda: ${item.queueNumber}\nStatus: ${item.status}`;
-    } catch {
-      return "Gagal cek antrian. Coba lagi.";
-    }
-  }
-
-  await api.post("/messages", {
-    phone,
-    message: text,
-    direction: "INBOUND"
-  }).catch(() => null);
-
-  return `Input tidak dikenali.
-Ketik *menu* untuk melihat layanan yang tersedia.`;
-};
-
-const bootstrap = async () => {
-  console.log("KlinikBot mock runner aktif.");
-  console.log("Ketik \"menu\" untuk melihat menu.");
-};
-
-bootstrap();
+server.listen(appConfig.bot.port, () => {
+  console.log(`Bot HTTP webhook server listening on port ${appConfig.bot.port}`);
+});
