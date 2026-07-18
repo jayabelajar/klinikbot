@@ -1,6 +1,8 @@
-import makeWASocket, {
+import {
+  makeWASocket,
   DisconnectReason,
-  useMultiFileAuthState
+  useMultiFileAuthState,
+  fetchLatestBaileysVersion
 } from "@whiskeysockets/baileys";
 import path from "path";
 import fs from "fs";
@@ -11,7 +13,7 @@ import { appConfig } from "@klinikbot/config";
 import { handleIncomingMessage } from "./flows/handler";
 
 // Logger for Baileys - set to silent or warn to avoid spamming the console
-const logger = pino({ level: "silent" });
+const logger = pino({ level: "warn" });
 
 const sessionDir = path.resolve(process.cwd(), "whatsapp_session");
 
@@ -28,7 +30,18 @@ async function connectToWhatsApp() {
 
   const { state, saveCreds } = await useMultiFileAuthState(sessionDir);
 
+  // Fetch the latest WhatsApp Web version to prevent handshake connection failure
+  let version: any = [2, 3000, 1017531287]; // Safe fallback version
+  try {
+    const { version: latestVersion, isLatest } = await fetchLatestBaileysVersion();
+    version = latestVersion;
+    console.log(`Using WhatsApp Web version v${version.join(".")}, isLatest: ${isLatest}`);
+  } catch (err: any) {
+    console.warn("Failed to fetch latest WhatsApp version, using default fallback:", err.message);
+  }
+
   sock = makeWASocket({
+    version,
     auth: state,
     printQRInTerminal: false, // We will manually print it with qrcode-terminal
     logger

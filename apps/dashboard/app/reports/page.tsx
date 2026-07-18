@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { FileSpreadsheet, Printer, AlertTriangle } from "lucide-react";
 
 interface Patient {
   name: string;
@@ -144,18 +145,18 @@ export default function ReportsPage() {
           <p>Unduh laporan kunjungan pasien harian atau bulanan, periksa metode pembayaran, dan ekspor ke Excel atau PDF.</p>
         </div>
         <div className="flex-gap-2">
-          <button onClick={handleExportCSV} className="btn btn-secondary">
-            📥 Export Excel (CSV)
+          <button onClick={handleExportCSV} className="btn btn-secondary" style={{ display: "inline-flex", gap: "6px", alignItems: "center" }}>
+            <FileSpreadsheet size={16} /> Export Excel (CSV)
           </button>
-          <button onClick={handlePrint} className="btn btn-primary">
-            🖨️ Cetak / Simpan PDF
+          <button onClick={handlePrint} className="btn btn-primary" style={{ display: "inline-flex", gap: "6px", alignItems: "center" }}>
+            <Printer size={16} /> Cetak / Simpan PDF
           </button>
         </div>
       </div>
 
       {error && (
-        <div style={{ padding: "12px", background: "#fee2e2", color: "#dc2626", borderRadius: "8px", margin: "16px 0" }}>
-          ⚠️ {error}
+        <div style={{ padding: "12px", background: "#fee2e2", color: "#dc2626", borderRadius: "8px", margin: "16px 0", display: "flex", gap: "8px", alignItems: "center" }}>
+          <AlertTriangle size={16} /> {error}
         </div>
       )}
 

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { RefreshCw, AlertTriangle, Wifi, WifiOff, QrCode, Save, Plug } from "lucide-react";
 
 interface ClinicSettings {
   clinicName: string;
@@ -148,8 +149,8 @@ export default function SettingsPage() {
       </div>
 
       {error && (
-        <div style={{ padding: "12px", background: "#fee2e2", color: "#dc2626", borderRadius: "8px", margin: "16px 0" }}>
-          ⚠️ {error}
+        <div style={{ padding: "12px", background: "#fee2e2", color: "#dc2626", borderRadius: "8px", margin: "16px 0", display: "flex", gap: "8px", alignItems: "center" }}>
+          <AlertTriangle size={16} /> {error}
         </div>
       )}
 
@@ -167,23 +168,23 @@ export default function SettingsPage() {
                 <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
                   <strong>Status Koneksi:</strong>
                   {whatsappStatus?.status === "CONNECTED" && (
-                    <span style={{ padding: "4px 12px", background: "#dcfce7", color: "#15803d", borderRadius: "9999px", fontWeight: "bold", fontSize: "14px" }}>
-                      🟢 Terhubung {whatsappStatus.phone ? `(${whatsappStatus.phone})` : ""}
+                    <span style={{ display: "inline-flex", gap: "6px", alignItems: "center", padding: "4px 12px", background: "#dcfce7", color: "#15803d", borderRadius: "9999px", fontWeight: "bold", fontSize: "14px" }}>
+                      <Wifi size={14} /> Terhubung {whatsappStatus.phone ? `(${whatsappStatus.phone})` : ""}
                     </span>
                   )}
                   {whatsappStatus?.status === "QR_READY" && (
-                    <span style={{ padding: "4px 12px", background: "#fef9c3", color: "#a16207", borderRadius: "9999px", fontWeight: "bold", fontSize: "14px" }}>
-                      🟡 Menunggu Pemindaian QR Code
+                    <span style={{ display: "inline-flex", gap: "6px", alignItems: "center", padding: "4px 12px", background: "#fef9c3", color: "#a16207", borderRadius: "9999px", fontWeight: "bold", fontSize: "14px" }}>
+                      <QrCode size={14} /> Menunggu Pemindaian QR Code
                     </span>
                   )}
                   {whatsappStatus?.status === "CONNECTING" && (
-                    <span style={{ padding: "4px 12px", background: "#dbeafe", color: "#1d4ed8", borderRadius: "9999px", fontWeight: "bold", fontSize: "14px" }}>
-                      🔵 Menghubungkan...
+                    <span style={{ display: "inline-flex", gap: "6px", alignItems: "center", padding: "4px 12px", background: "#dbeafe", color: "#1d4ed8", borderRadius: "9999px", fontWeight: "bold", fontSize: "14px" }}>
+                      <RefreshCw size={14} className="animate-spin" /> Menghubungkan...
                     </span>
                   )}
                   {(whatsappStatus?.status === "DISCONNECTED" || !whatsappStatus?.status) && (
-                    <span style={{ padding: "4px 12px", background: "#fee2e2", color: "#b91c1c", borderRadius: "9999px", fontWeight: "bold", fontSize: "14px" }}>
-                      🔴 Terputus
+                    <span style={{ display: "inline-flex", gap: "6px", alignItems: "center", padding: "4px 12px", background: "#fee2e2", color: "#b91c1c", borderRadius: "9999px", fontWeight: "bold", fontSize: "14px" }}>
+                      <WifiOff size={14} /> Terputus
                     </span>
                   )}
                 </div>
@@ -217,10 +218,10 @@ export default function SettingsPage() {
                       type="button" 
                       onClick={handleDisconnectWhatsapp} 
                       className="btn" 
-                      style={{ background: "#dc2626", color: "white", padding: "10px 20px" }}
+                      style={{ background: "#dc2626", color: "white", padding: "10px 20px", display: "inline-flex", gap: "6px", alignItems: "center" }}
                       disabled={disconnecting}
                     >
-                      {disconnecting ? "Memutus..." : "🔌 Putuskan Koneksi WhatsApp"}
+                      {disconnecting ? "Memutus..." : <><Plug size={16} /> Putuskan Koneksi WhatsApp</>}
                     </button>
                   </div>
                 )}
@@ -351,8 +352,8 @@ export default function SettingsPage() {
 
           {/* Action Footer */}
           <div style={{ display: "flex", justifyContent: "flex-end" }}>
-            <button type="submit" className="btn btn-primary" style={{ padding: "14px 28px" }} disabled={saving}>
-              {saving ? "Menyimpan pengaturan..." : "💾 Simpan Perubahan Pengaturan"}
+            <button type="submit" className="btn btn-primary" style={{ padding: "14px 28px", display: "inline-flex", gap: "8px", alignItems: "center" }} disabled={saving}>
+              {saving ? "Menyimpan pengaturan..." : <><Save size={16} /> Simpan Perubahan Pengaturan</>}
             </button>
           </div>
         </form>

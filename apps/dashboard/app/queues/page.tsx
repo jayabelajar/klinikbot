@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { RefreshCw, AlertTriangle, Stethoscope, Volume2, CheckCircle, XCircle, Clock } from "lucide-react";
 
 interface Patient {
   name: string;
@@ -88,14 +89,14 @@ export default function QueuesPage() {
           <h1>Papan Panggilan Antrian (Real-Time)</h1>
           <p>Panggil pasien, lewati pasien, atau selesaikan pemeriksaan medis pasien.</p>
         </div>
-        <button onClick={fetchQueues} className="btn btn-secondary btn-sm">
-          🔄 Segarkan
+        <button onClick={fetchQueues} className="btn btn-secondary btn-sm" style={{ display: "inline-flex", gap: "6px", alignItems: "center" }}>
+          <RefreshCw size={14} className={loading ? "animate-spin" : ""} /> Segarkan
         </button>
       </div>
 
       {error && (
-        <div style={{ padding: "12px", background: "#fee2e2", color: "#dc2626", borderRadius: "8px", margin: "16px 0" }}>
-          ⚠️ {error}
+        <div style={{ padding: "12px", background: "#fee2e2", color: "#dc2626", borderRadius: "8px", margin: "16px 0", display: "flex", gap: "8px", alignItems: "center" }}>
+          <AlertTriangle size={16} /> {error}
         </div>
       )}
 
@@ -112,36 +113,38 @@ export default function QueuesPage() {
               <div style={{ fontSize: "24px", fontWeight: "700" }}>
                 {activeCalledQueue.booking.patient.name}
               </div>
-              <p style={{ fontSize: "14px", fontWeight: "500" }}>
-                🩺 {activeCalledQueue.booking.doctor.name} ({activeCalledQueue.booking.doctor.specialization})
+              <p style={{ fontSize: "14px", fontWeight: "500", display: "flex", gap: "4px", alignItems: "center" }}>
+                <Stethoscope size={16} /> {activeCalledQueue.booking.doctor.name} ({activeCalledQueue.booking.doctor.specialization})
               </p>
               
               <div className="flex-gap-2 mt-4">
                 <button 
                   onClick={() => handleUpdateStatus(activeCalledQueue.id, "CALLED")} 
                   className="btn btn-primary"
+                  style={{ display: "inline-flex", gap: "6px", alignItems: "center" }}
                 >
-                  🔊 Panggil Ulang (WA)
+                  <Volume2 size={16} /> Panggil Ulang (WA)
                 </button>
                 <button 
                   onClick={() => handleUpdateStatus(activeCalledQueue.id, "DONE")} 
                   className="btn btn-secondary"
-                  style={{ backgroundColor: "hsl(var(--success))", color: "#ffffff", borderColor: "transparent" }}
+                  style={{ backgroundColor: "hsl(var(--success))", color: "#ffffff", borderColor: "transparent", display: "inline-flex", gap: "6px", alignItems: "center" }}
                 >
-                  ✓ Selesai
+                  <CheckCircle size={16} /> Selesai
                 </button>
                 <button 
                   onClick={() => handleUpdateStatus(activeCalledQueue.id, "SKIPPED")} 
                   className="btn btn-destructive"
+                  style={{ display: "inline-flex", gap: "6px", alignItems: "center" }}
                 >
-                  ✕ Lewati
+                  <XCircle size={16} /> Lewati
                 </button>
               </div>
             </>
           ) : (
-            <div style={{ padding: "32px 0" }}>
-              <div style={{ fontSize: "48px" }}>💤</div>
-              <p style={{ fontSize: "16px", marginTop: "12px", fontWeight: "600" }}>Tidak ada panggilan aktif.</p>
+            <div style={{ padding: "32px 0", display: "flex", flexDirection: "column", alignItems: "center", gap: "12px" }}>
+              <Clock size={48} style={{ color: "hsl(var(--muted-foreground))" }} />
+              <p style={{ fontSize: "16px", fontWeight: "600", color: "hsl(var(--foreground))" }}>Tidak ada panggilan aktif.</p>
               <p>Pilih pasien di daftar tunggu untuk melakukan panggilan.</p>
             </div>
           )}
@@ -163,7 +166,7 @@ export default function QueuesPage() {
             </div>
           </div>
           <div style={{ borderTop: "1px solid hsl(var(--card-border))", paddingTop: "12px" }}>
-            <p>🔄 Nomor antrian akan berlanjut secara otomatis setiap kali pasien melakukan booking terkonfirmasi.</p>
+            <p style={{ display: "flex", gap: "6px", alignItems: "center" }}><RefreshCw size={14} /> Nomor antrian akan berlanjut secara otomatis setiap kali pasien melakukan booking terkonfirmasi.</p>
           </div>
         </div>
       </div>
@@ -205,8 +208,8 @@ export default function QueuesPage() {
                         <small>{q.booking.doctor.specialization}</small>
                       </td>
                       <td align="right">
-                        <button onClick={() => handleUpdateStatus(q.id, "CALLED")} className="btn btn-primary btn-sm">
-                          🔊 Panggil
+                        <button onClick={() => handleUpdateStatus(q.id, "CALLED")} className="btn btn-primary btn-sm" style={{ display: "inline-flex", gap: "4px", alignItems: "center" }}>
+                          <Volume2 size={14} /> Panggil
                         </button>
                       </td>
                     </tr>

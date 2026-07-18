@@ -2,6 +2,15 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import {
+  RefreshCw,
+  AlertTriangle,
+  Users,
+  Stethoscope,
+  Calendar,
+  ListOrdered,
+  Megaphone
+} from "lucide-react";
 
 interface SummaryData {
   totalPatients: number;
@@ -50,14 +59,14 @@ export default function HomePage() {
           <h1>Dashboard Administrasi</h1>
           <p>Selamat datang kembali di sistem KlinikBot. Berikut adalah ikhtisar operasional hari ini.</p>
         </div>
-        <button onClick={fetchSummary} className="btn btn-secondary btn-sm">
-          🔄 Segarkan Data
+        <button onClick={fetchSummary} className="btn btn-secondary btn-sm" style={{ display: "inline-flex", gap: "6px", alignItems: "center" }}>
+          <RefreshCw size={14} className={loading ? "animate-spin" : ""} /> Segarkan Data
         </button>
       </div>
 
       {error && (
-        <div style={{ padding: "12px 16px", background: "#fee2e2", color: "#dc2626", borderRadius: "8px", margin: "16px 0", fontWeight: 500 }}>
-          ⚠️ {error}
+        <div style={{ padding: "12px 16px", background: "#fee2e2", color: "#dc2626", borderRadius: "8px", margin: "16px 0", fontWeight: 500, display: "flex", gap: "8px", alignItems: "center" }}>
+          <AlertTriangle size={18} /> {error}
         </div>
       )}
 
@@ -98,17 +107,17 @@ export default function HomePage() {
           <h2>Menu Pintasan Administrasi</h2>
           <p style={{ marginBottom: "16px" }}>Kelola data master dan operasional dengan cepat melalui navigasi berikut:</p>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
-            <Link href="/patients" className="btn btn-secondary" style={{ display: "flex", justifyContent: "flex-start", padding: "16px" }}>
-              👥 Kelola Pasien
+            <Link href="/patients" className="btn btn-secondary" style={{ display: "flex", justifyContent: "flex-start", padding: "16px", gap: "8px", alignItems: "center" }}>
+              <Users size={18} /> Kelola Pasien
             </Link>
-            <Link href="/doctors" className="btn btn-secondary" style={{ display: "flex", justifyContent: "flex-start", padding: "16px" }}>
-              🩺 Kelola Dokter
+            <Link href="/doctors" className="btn btn-secondary" style={{ display: "flex", justifyContent: "flex-start", padding: "16px", gap: "8px", alignItems: "center" }}>
+              <Stethoscope size={18} /> Kelola Dokter
             </Link>
-            <Link href="/bookings" className="btn btn-secondary" style={{ display: "flex", justifyContent: "flex-start", padding: "16px" }}>
-              📅 Kelola Booking
+            <Link href="/bookings" className="btn btn-secondary" style={{ display: "flex", justifyContent: "flex-start", padding: "16px", gap: "8px", alignItems: "center" }}>
+              <Calendar size={18} /> Kelola Booking
             </Link>
-            <Link href="/queues" className="btn btn-secondary" style={{ display: "flex", justifyContent: "flex-start", padding: "16px" }}>
-              🚶 Monitor Antrian
+            <Link href="/queues" className="btn btn-secondary" style={{ display: "flex", justifyContent: "flex-start", padding: "16px", gap: "8px", alignItems: "center" }}>
+              <ListOrdered size={18} /> Monitor Antrian
             </Link>
           </div>
         </div>
@@ -124,8 +133,8 @@ export default function HomePage() {
             </p>
           </div>
           <div style={{ marginTop: "20px" }}>
-            <Link href="/broadcast" className="btn btn-primary" style={{ width: "100%" }}>
-              📢 Kirim Broadcast / Pengumuman Massal
+            <Link href="/broadcast" className="btn btn-primary" style={{ width: "100%", display: "inline-flex", gap: "8px", alignItems: "center", justifyContent: "center" }}>
+              <Megaphone size={18} /> Kirim Broadcast / Pengumuman Massal
             </Link>
           </div>
         </div>

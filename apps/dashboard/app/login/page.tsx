@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { HeartPulse, AlertCircle } from "lucide-react";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -45,14 +46,16 @@ export default function LoginPage() {
     <div className="login-container">
       <div className="card glass login-card">
         <div className="login-header">
-          <div className="login-logo">🏥</div>
+          <div className="login-logo" style={{ display: "flex", justifyContent: "center", marginBottom: "16px" }}>
+            <HeartPulse size={48} style={{ color: "hsl(var(--primary))" }} />
+          </div>
           <h1>KlinikBot Admin</h1>
           <p>Masuk untuk mengelola administrasi klinik</p>
         </div>
 
         {error && (
-          <div style={{ backgroundColor: "#fee2e2", color: "#dc2626", padding: "12px", borderRadius: "8px", fontSize: "14px", marginBottom: "16px", fontWeight: 500, textAlign: "center" }}>
-            ❌ {error}
+          <div style={{ backgroundColor: "#fee2e2", color: "#dc2626", padding: "12px", borderRadius: "8px", fontSize: "14px", marginBottom: "16px", fontWeight: 500, display: "flex", gap: "8px", alignItems: "center", justifyContent: "center" }}>
+            <AlertCircle size={16} /> {error}
           </div>
         )}
 

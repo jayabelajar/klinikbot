@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { Megaphone, Send, ChevronRight, AlertTriangle } from "lucide-react";
 
 interface MessageLog {
   id: string;
@@ -97,8 +98,8 @@ export default function BroadcastPage() {
           <h2>Tulis Pesan Broadcast</h2>
           <p style={{ marginBottom: "16px" }}>Pesan akan dikirim secara sekuensial melalui bot WhatsApp KlinikBot.</p>
           
-          <div style={{ padding: "12px", background: "hsl(var(--accent))", border: "1px solid hsl(var(--primary) / 0.2)", color: "hsl(var(--accent-foreground))", borderRadius: "8px", fontSize: "14px", marginBottom: "16px" }}>
-            📢 **Target Penerima:** *{patientCount} nomor pasien* terdaftar.
+          <div style={{ padding: "12px", background: "hsl(var(--accent))", border: "1px solid hsl(var(--primary) / 0.2)", color: "hsl(var(--accent-foreground))", borderRadius: "8px", fontSize: "14px", marginBottom: "16px", display: "flex", gap: "8px", alignItems: "center" }}>
+            <Megaphone size={16} /> <span>**Target Penerima:** *{patientCount} nomor pasien* terdaftar.</span>
           </div>
 
           <form onSubmit={handleSendBroadcast}>
@@ -118,10 +119,10 @@ export default function BroadcastPage() {
               <button 
                 type="submit" 
                 className="btn btn-primary" 
-                style={{ width: "100%", padding: "12px" }}
+                style={{ width: "100%", padding: "12px", display: "inline-flex", gap: "8px", alignItems: "center", justifyContent: "center" }}
                 disabled={sending || patientCount === 0 || !message.trim()}
               >
-                {sending ? "Mengirim broadcast massal..." : "🚀 Kirim Pengumuman Sekarang"}
+                {sending ? "Mengirim broadcast massal..." : <><Send size={16} /> Kirim Pengumuman Sekarang</>}
               </button>
             </div>
           </form>
@@ -131,20 +132,30 @@ export default function BroadcastPage() {
         <div className="card" style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
           <h2>Tips Penulisan Pesan</h2>
           <div style={{ fontSize: "14px", display: "flex", flexDirection: "column", gap: "12px" }}>
-            <div>
-              <strong>🔹 Gunakan Format Tebal (Bold):</strong>
-              <p>Tambahkan tanda bintang di awal dan akhir kata untuk membuat teks tebal di WhatsApp. Contoh: `*PENGUMUMAN*` akan menjadi *PENGUMUMAN*.</p>
+            <div style={{ display: "flex", gap: "8px", alignItems: "flex-start" }}>
+              <ChevronRight size={16} style={{ color: "hsl(var(--primary))", flexShrink: 0, marginTop: "2px" }} />
+              <div>
+                <strong>Gunakan Format Tebal (Bold):</strong>
+                <p>Tambahkan tanda bintang di awal dan akhir kata untuk membuat teks tebal di WhatsApp. Contoh: `*PENGUMUMAN*` akan menjadi *PENGUMUMAN*.</p>
+              </div>
             </div>
-            <div>
-              <strong>🔹 Singkat dan Jelas:</strong>
-              <p>Pasien lebih suka membaca pengumuman yang padat dan langsung ke poin utama.</p>
+            <div style={{ display: "flex", gap: "8px", alignItems: "flex-start" }}>
+              <ChevronRight size={16} style={{ color: "hsl(var(--primary))", flexShrink: 0, marginTop: "2px" }} />
+              <div>
+                <strong>Singkat dan Jelas:</strong>
+                <p>Pasien lebih suka membaca pengumuman yang padat dan langsung ke poin utama.</p>
+              </div>
             </div>
-            <div>
-              <strong>🔹 Sertakan Nomor Bantuan:</strong>
-              <p>Berikan kontak admin klinik di akhir pesan agar pasien dapat merespon jika ada pertanyaan lanjutan.</p>
+            <div style={{ display: "flex", gap: "8px", alignItems: "flex-start" }}>
+              <ChevronRight size={16} style={{ color: "hsl(var(--primary))", flexShrink: 0, marginTop: "2px" }} />
+              <div>
+                <strong>Sertakan Nomor Bantuan:</strong>
+                <p>Berikan kontak admin klinik di akhir pesan agar pasien dapat merespon jika ada pertanyaan lanjutan.</p>
+              </div>
             </div>
-            <div style={{ borderTop: "1px solid hsl(var(--card-border))", paddingTop: "12px" }}>
-              <p style={{ color: "hsl(var(--muted-foreground))" }}>⚠️ Pastikan status koneksi bot WhatsApp di server dalam keadaan aktif/tersambung sebelum menekan tombol kirim.</p>
+            <div style={{ borderTop: "1px solid hsl(var(--card-border))", paddingTop: "12px", display: "flex", gap: "8px", alignItems: "flex-start" }}>
+              <AlertTriangle size={16} style={{ color: "hsl(var(--warning))", flexShrink: 0, marginTop: "2px" }} />
+              <p style={{ color: "hsl(var(--muted-foreground))" }}>Pastikan status koneksi bot WhatsApp di server dalam keadaan aktif/tersambung sebelum menekan tombol kirim.</p>
             </div>
           </div>
         </div>

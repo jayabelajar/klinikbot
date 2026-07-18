@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { RefreshCw, AlertTriangle, Check, X, Trash2, UserPlus } from "lucide-react";
 
 interface Patient {
   id: string;
@@ -148,14 +149,14 @@ export default function BookingsPage() {
           <h1>Kelola Booking Pasien</h1>
           <p>Konfirmasi pendaftaran booking jadwal dan generate nomor antrian pemeriksaan.</p>
         </div>
-        <button onClick={fetchBookings} className="btn btn-secondary btn-sm">
-          🔄 Segarkan
+        <button onClick={fetchBookings} className="btn btn-secondary btn-sm" style={{ display: "inline-flex", gap: "6px", alignItems: "center" }}>
+          <RefreshCw size={14} className={loading ? "animate-spin" : ""} /> Segarkan
         </button>
       </div>
 
       {error && (
-        <div style={{ padding: "12px", background: "#fee2e2", color: "#dc2626", borderRadius: "8px", margin: "16px 0" }}>
-          ⚠️ {error}
+        <div style={{ padding: "12px", background: "#fee2e2", color: "#dc2626", borderRadius: "8px", margin: "16px 0", display: "flex", gap: "8px", alignItems: "center" }}>
+          <AlertTriangle size={16} /> {error}
         </div>
       )}
 
@@ -245,22 +246,22 @@ export default function BookingsPage() {
                       <div className="flex-gap-2" style={{ justifyContent: "flex-end", flexWrap: "wrap", maxWidth: "220px" }}>
                         {b.status === "WAITING" && (
                           <>
-                            <button onClick={() => handleUpdateStatus(b.id, "CONFIRMED")} className="btn btn-primary btn-sm">
-                              ✓ Setuju
+                            <button onClick={() => handleUpdateStatus(b.id, "CONFIRMED")} className="btn btn-primary btn-sm" style={{ display: "inline-flex", gap: "4px", alignItems: "center" }}>
+                              <Check size={14} /> Setuju
                             </button>
-                            <button onClick={() => handleUpdateStatus(b.id, "CANCELLED")} className="btn btn-destructive btn-sm">
-                              ✕ Tolak
+                            <button onClick={() => handleUpdateStatus(b.id, "CANCELLED")} className="btn btn-destructive btn-sm" style={{ display: "inline-flex", gap: "4px", alignItems: "center" }}>
+                              <X size={14} /> Tolak
                             </button>
                           </>
                         )}
                         
                         {b.status === "CONFIRMED" && (
                           <>
-                            <button onClick={() => handleGenerateQueue(b.id)} className="btn btn-primary btn-sm" style={{ backgroundColor: "hsl(220 70% 50%)" }}>
-                              🚶 Buat Antrian
+                            <button onClick={() => handleGenerateQueue(b.id)} className="btn btn-primary btn-sm" style={{ backgroundColor: "hsl(220 70% 50%)", display: "inline-flex", gap: "4px", alignItems: "center" }}>
+                              <UserPlus size={14} /> Buat Antrian
                             </button>
-                            <button onClick={() => handleUpdateStatus(b.id, "CANCELLED")} className="btn btn-destructive btn-sm">
-                              Batalkan
+                            <button onClick={() => handleUpdateStatus(b.id, "CANCELLED")} className="btn btn-destructive btn-sm" style={{ display: "inline-flex", gap: "4px", alignItems: "center" }}>
+                              <X size={14} /> Batalkan
                             </button>
                           </>
                         )}
@@ -278,8 +279,8 @@ export default function BookingsPage() {
                         )}
 
                         {b.status === "CANCELLED" && (
-                          <button onClick={() => handleDelete(b.id)} className="btn btn-destructive btn-sm" style={{ padding: "4px 8px" }}>
-                            🗑️ Hapus
+                          <button onClick={() => handleDelete(b.id)} className="btn btn-destructive btn-sm" style={{ padding: "4px 8px", display: "inline-flex", gap: "4px", alignItems: "center" }}>
+                            <Trash2 size={14} /> Hapus
                           </button>
                         )}
                       </div>

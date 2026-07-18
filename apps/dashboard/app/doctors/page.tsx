@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { Plus, AlertTriangle, Edit, Trash2 } from "lucide-react";
 
 interface Doctor {
   id: string;
@@ -161,14 +162,14 @@ export default function DoctorsPage() {
           <h1>Jadwal & Master Dokter</h1>
           <p>Kelola data dokter, spesialisasi, dan jadwal praktik di Klinik.</p>
         </div>
-        <button onClick={handleOpenAdd} className="btn btn-primary">
-          ➕ Tambah Dokter Baru
+        <button onClick={handleOpenAdd} className="btn btn-primary" style={{ display: "inline-flex", gap: "6px", alignItems: "center" }}>
+          <Plus size={16} /> Tambah Dokter Baru
         </button>
       </div>
 
       {error && (
-        <div style={{ padding: "12px", background: "#fee2e2", color: "#dc2626", borderRadius: "8px", margin: "16px 0" }}>
-          ⚠️ {error}
+        <div style={{ padding: "12px", background: "#fee2e2", color: "#dc2626", borderRadius: "8px", margin: "16px 0", display: "flex", gap: "8px", alignItems: "center" }}>
+          <AlertTriangle size={16} /> {error}
         </div>
       )}
 
@@ -218,11 +219,11 @@ export default function DoctorsPage() {
                     </td>
                     <td align="right">
                       <div className="flex-gap-2" style={{ justifyContent: "flex-end" }}>
-                        <button onClick={() => handleOpenEdit(doc)} className="btn btn-secondary btn-sm">
-                          ✏️ Edit
+                        <button onClick={() => handleOpenEdit(doc)} className="btn btn-secondary btn-sm" style={{ display: "inline-flex", gap: "4px", alignItems: "center" }}>
+                          <Edit size={14} /> Edit
                         </button>
-                        <button onClick={() => handleDelete(doc.id)} className="btn btn-destructive btn-sm">
-                          🗑️ Hapus
+                        <button onClick={() => handleDelete(doc.id)} className="btn btn-destructive btn-sm" style={{ display: "inline-flex", gap: "4px", alignItems: "center" }}>
+                          <Trash2 size={14} /> Hapus
                         </button>
                       </div>
                     </td>
