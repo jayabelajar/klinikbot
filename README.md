@@ -226,3 +226,28 @@ pnpm --filter @klinikbot/api dev
 ```
 
 Selesai. API siap dipakai setelah env dan database valid.
+
+---
+
+## 11) FAQ & Arsitektur Workspace (pnpm)
+
+### A. Mengapa ada folder `node_modules` di setiap sub-folder `apps/`?
+Monorepo ini menggunakan **pnpm workspaces**. Berbeda dengan npm atau yarn klasik, pnpm memiliki sistem manajemen dependency yang efisien dan aman:
+1. **Tidak Ada Duplikasi Fisik (Hard-link/Symlink)**: pnpm mengunduh dependency sekali saja ke global/root store (`node_modules/.pnpm/`). Folder `node_modules` di dalam masing-masing app (`apps/api`, `apps/dashboard`, dll.) sebenarnya hanya berisi **symlink** (atau junction di Windows) ke root store tersebut. Jadi, space disk Anda tetap hemat dan tidak terduplikasi secara fisik.
+2. **Koneksi Workspace Internal**: Local packages (seperti `@klinikbot/database`, `@klinikbot/utils`) juga di-link otomatis melalui symlink ke `node_modules` aplikasi yang memerlukannya agar bisa di-import langsung tanpa build/publish manual.
+3. **Mencegah Phantom Dependencies**: pnpm memastikan tiap app hanya bisa mengimpor library yang dideklarasikan secara eksplisit pada `package.json` miliknya sendiri.
+
+### B. Mengapa saat menjalankan `pnpm -r dev` terasa lama / berat?
+Perintah `pnpm -r dev` (atau `pnpm -r --parallel dev`) menjalankan seluruh aplikasi (`apps/api`, `apps/bot`, dan `apps/dashboard`) secara **bersamaan (paralel)**. Berikut beberapa alasannya:
+1. **Beban Resource Next.js**: `apps/dashboard` (Next.js) memakan resource RAM/CPU yang cukup besar pada inisialisasi awal dev server karena Next.js mempersiapkan compiler dev server secara on-demand.
+2. **TypeScript Compilation (On-the-fly)**: API dan Bot menggunakan `tsx watch` yang melakukan transpilasi TypeScript ke JavaScript secara real-time.
+3. **Koneksi Database (Prisma Client)**: Saat startup, `apps/api` dan `apps/bot` mencoba menginisialisasi Prisma Client. Jika database Postgres di local/remote (sesuai `DATABASE_URL` di `.env`) mati, lambat, atau mengalami gangguan koneksi, proses startup akan **hang / tertunda lama** sebelum akhirnya timeout.
+4. **WhatsApp Connection**: Bot WhatsApp (`@whiskeysockets/baileys`) mencoba memulihkan koneksi dan membaca state auth dari folder `whatsapp_session/` ke server WhatsApp, yang memerlukan waktu sinkronisasi data.
+
+**Tips Menghemat Waktu & Resource:**
+- **Jalankan Aplikasi Spesifik Saja**: Jika Anda hanya sedang mengerjakan backend API, tidak perlu menjalankan dashboard/bot. Gunakan filter pnpm untuk menjalankan yang dibutuhkan saja:
+  - Hanya jalankan API: `pnpm --filter @klinikbot/api dev`
+  - Hanya jalankan API & Bot: `pnpm --filter @klinikbot/api --filter @klinikbot/bot dev`
+- **Pastikan Database Aktif**: Sebelum menjalankan dev server, pastikan PostgreSQL (lokal atau cloud Supabase) sudah menyala dan dapat diakses dengan sukses agar Prisma tidak tertunda melakukan koneksi.
+- **Gunakan Single Service Startup**: Jika hardware komputer terbatas, Anda dapat membuka beberapa terminal terpisah dan menjalankan service tertentu secara bertahap sesuai kebutuhan alur kerja coding Anda.
+
