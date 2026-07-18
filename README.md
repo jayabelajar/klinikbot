@@ -218,11 +218,10 @@ Catatan:
 ## 10) Quick Start Ringkas
 
 ```bash
-pnpm install
-pnpm --filter @klinikbot/database prisma:generate
-pnpm --filter @klinikbot/database prisma:migrate
+pnpm install # Otomatis melakukan prisma generate
+pnpm --filter @klinikbot/database prisma:migrate # Jika ada perubahan schema database
 pnpm -r typecheck
-pnpm --filter @klinikbot/api dev
+pnpm dev # Menjalankan server apps saja
 ```
 
 Selesai. API siap dipakai setelah env dan database valid.
@@ -237,8 +236,13 @@ Monorepo ini menggunakan **pnpm workspaces**. Berbeda dengan npm atau yarn klasi
 2. **Koneksi Workspace Internal**: Local packages (seperti `@klinikbot/database`, `@klinikbot/utils`) juga di-link otomatis melalui symlink ke `node_modules` aplikasi yang memerlukannya agar bisa di-import langsung tanpa build/publish manual.
 3. **Mencegah Phantom Dependencies**: pnpm memastikan tiap app hanya bisa mengimpor library yang dideklarasikan secara eksplisit pada `package.json` miliknya sendiri.
 
-### B. Mengapa saat menjalankan `pnpm -r dev` terasa lama / berat?
-Perintah `pnpm -r dev` (atau `pnpm -r --parallel dev`) menjalankan seluruh aplikasi (`apps/api`, `apps/bot`, dan `apps/dashboard`) secara **bersamaan (paralel)**. Berikut beberapa alasannya:
+### B. Mengapa saat menjalankan `pnpm dev` terasa lama / berat?
+Perintah `pnpm dev` menjalankan aplikasi (`apps/api`, `apps/bot`, dan `apps/dashboard`) secara **bersamaan (paralel)**.
+
+> [!NOTE]
+> **Update Optimasi**: Kami telah menghapus compiler watch redundant (`tsc -w`) dan watcher database (`prisma generate --watch`) pada script `dev` packages/library. Sekarang, proses startup jauh lebih ringan dan cepat karena compile TypeScript dilakukan *on-the-fly* oleh runtime apps.
+
+Berikut beberapa alasan mengapa startup masih bisa terasa lambat:
 1. **Beban Resource Next.js**: `apps/dashboard` (Next.js) memakan resource RAM/CPU yang cukup besar pada inisialisasi awal dev server karena Next.js mempersiapkan compiler dev server secara on-demand.
 2. **TypeScript Compilation (On-the-fly)**: API dan Bot menggunakan `tsx watch` yang melakukan transpilasi TypeScript ke JavaScript secara real-time.
 3. **Koneksi Database (Prisma Client)**: Saat startup, `apps/api` dan `apps/bot` mencoba menginisialisasi Prisma Client. Jika database Postgres di local/remote (sesuai `DATABASE_URL` di `.env`) mati, lambat, atau mengalami gangguan koneksi, proses startup akan **hang / tertunda lama** sebelum akhirnya timeout.

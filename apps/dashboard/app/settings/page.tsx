@@ -24,6 +24,11 @@ export default function SettingsPage() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // WhatsApp connection states
+  const [whatsappStatus, setWhatsappStatus] = useState<{ status: string; qr: string; phone: string; error?: string } | null>(null);
+  const [checkingStatus, setCheckingStatus] = useState(true);
+  const [disconnecting, setDisconnecting] = useState(false);
+
   const fetchSettings = async () => {
     const apiUrl = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:3001";
     const token = localStorage.getItem("token");
@@ -42,9 +47,55 @@ export default function SettingsPage() {
     }
   };
 
+  const fetchWhatsappStatus = async () => {
+    const apiUrl = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:3001";
+    const token = localStorage.getItem("token");
+    try {
+      const res = await fetch(`${apiUrl}/whatsapp/status`, {
+        headers: { Authorization: token ? `Bearer ${token}` : "" }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setWhatsappStatus(data);
+      }
+    } catch (err) {
+      console.error("Gagal memuat status WhatsApp:", err);
+    } finally {
+      setCheckingStatus(false);
+    }
+  };
+
   useEffect(() => {
     fetchSettings();
+    fetchWhatsappStatus();
+
+    // Poll status every 5 seconds to automatically detect qr updates & successful scans
+    const interval = setInterval(fetchWhatsappStatus, 5000);
+    return () => clearInterval(interval);
   }, []);
+
+  const handleDisconnectWhatsapp = async () => {
+    if (!confirm("Apakah Anda yakin ingin memutus koneksi WhatsApp Bot?")) return;
+    setDisconnecting(true);
+    const apiUrl = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:3001";
+    const token = localStorage.getItem("token");
+    try {
+      const res = await fetch(`${apiUrl}/whatsapp/logout`, {
+        method: "POST",
+        headers: { Authorization: token ? `Bearer ${token}` : "" }
+      });
+      if (res.ok) {
+        alert("WhatsApp Bot berhasil diputus!");
+        fetchWhatsappStatus();
+      } else {
+        throw new Error("Gagal memutuskan koneksi");
+      }
+    } catch (err: any) {
+      alert(err.message || "Gagal memproses.");
+    } finally {
+      setDisconnecting(false);
+    }
+  };
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -104,6 +155,79 @@ export default function SettingsPage() {
 
       {settings && (
         <form onSubmit={handleSave} style={{ display: "flex", flexDirection: "column", gap: "24px", marginTop: "16px" }}>
+          {/* WhatsApp Connection Integration Panel */}
+          <div className="card">
+            <h2>Koneksi WhatsApp Bot</h2>
+            <p style={{ marginBottom: "16px" }}>Hubungkan nomor WhatsApp untuk mengirimkan notifikasi antrian, konfirmasi booking, dan merespons pesan pasien secara otomatis.</p>
+            
+            {checkingStatus && !whatsappStatus ? (
+              <p>Memeriksa status koneksi...</p>
+            ) : (
+              <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                  <strong>Status Koneksi:</strong>
+                  {whatsappStatus?.status === "CONNECTED" && (
+                    <span style={{ padding: "4px 12px", background: "#dcfce7", color: "#15803d", borderRadius: "9999px", fontWeight: "bold", fontSize: "14px" }}>
+                      🟢 Terhubung {whatsappStatus.phone ? `(${whatsappStatus.phone})` : ""}
+                    </span>
+                  )}
+                  {whatsappStatus?.status === "QR_READY" && (
+                    <span style={{ padding: "4px 12px", background: "#fef9c3", color: "#a16207", borderRadius: "9999px", fontWeight: "bold", fontSize: "14px" }}>
+                      🟡 Menunggu Pemindaian QR Code
+                    </span>
+                  )}
+                  {whatsappStatus?.status === "CONNECTING" && (
+                    <span style={{ padding: "4px 12px", background: "#dbeafe", color: "#1d4ed8", borderRadius: "9999px", fontWeight: "bold", fontSize: "14px" }}>
+                      🔵 Menghubungkan...
+                    </span>
+                  )}
+                  {(whatsappStatus?.status === "DISCONNECTED" || !whatsappStatus?.status) && (
+                    <span style={{ padding: "4px 12px", background: "#fee2e2", color: "#b91c1c", borderRadius: "9999px", fontWeight: "bold", fontSize: "14px" }}>
+                      🔴 Terputus
+                    </span>
+                  )}
+                </div>
+
+                {whatsappStatus?.status === "QR_READY" && whatsappStatus.qr && (
+                  <div style={{ display: "flex", flexDirection: "column", alignItems: "center", background: "#f8fafc", padding: "20px", borderRadius: "12px", border: "1px dashed #cbd5e1" }}>
+                    <p style={{ marginBottom: "12px", fontWeight: "600", color: "#475569", textAlign: "center" }}>
+                      Pindai QR Code di bawah dengan aplikasi WhatsApp Anda (Perangkat Tertaut):
+                    </p>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img 
+                      src={`https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(whatsappStatus.qr)}`} 
+                      alt="WhatsApp QR Code"
+                      style={{ border: "4px solid white", borderRadius: "8px", boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1)" }}
+                    />
+                    <p style={{ marginTop: "12px", fontSize: "12px", color: "#64748b", textAlign: "center" }}>
+                      QR Code akan diperbarui secara berkala jika belum dipindai.
+                    </p>
+                  </div>
+                )}
+
+                {whatsappStatus?.status === "CONNECTED" && (
+                  <div style={{ background: "#f0fdf4", padding: "16px", borderRadius: "8px", border: "1px solid #bbf7d0", color: "#166534" }}>
+                    Bot WhatsApp aktif dan berjalan menggunakan nomor <strong>{whatsappStatus.phone}</strong>. Sistem siap mengirimkan notifikasi dan melayani antrian pasien.
+                  </div>
+                )}
+
+                {whatsappStatus?.status === "CONNECTED" && (
+                  <div>
+                    <button 
+                      type="button" 
+                      onClick={handleDisconnectWhatsapp} 
+                      className="btn" 
+                      style={{ background: "#dc2626", color: "white", padding: "10px 20px" }}
+                      disabled={disconnecting}
+                    >
+                      {disconnecting ? "Memutus..." : "🔌 Putuskan Koneksi WhatsApp"}
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+
           {/* Clinic Profile Metadata */}
           <div className="card">
             <h2>Profil & Metadata Klinik</h2>

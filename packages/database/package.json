@@ -6,14 +6,13 @@
   "main": "src/index.ts",
   "types": "src/index.ts",
   "scripts": {
-    "dev": "prisma generate --watch",
-    "build": "prisma generate",
+    "build": "node -e \"const fs = require('fs'); if (fs.existsSync('../../.env')) fs.copyFileSync('../../.env', '.env')\" && prisma generate",
     "lint": "echo \"No lint configured for @klinikbot/database\"",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "format": "echo \"No format script for @klinikbot/database\"",
-    "prisma:generate": "prisma generate",
-    "prisma:migrate": "prisma migrate dev",
-    "prisma:deploy": "prisma migrate deploy"
+    "prisma:generate": "node -e \"const fs = require('fs'); if (fs.existsSync('../../.env')) fs.copyFileSync('../../.env', '.env')\" && prisma generate",
+    "prisma:migrate": "node -e \"const fs = require('fs'); if (fs.existsSync('../../.env')) fs.copyFileSync('../../.env', '.env')\" && prisma migrate dev",
+    "prisma:deploy": "node -e \"const fs = require('fs'); if (fs.existsSync('../../.env')) fs.copyFileSync('../../.env', '.env')\" && prisma migrate deploy"
   },
   "dependencies": {
     "@prisma/client": "^5.17.0"

@@ -77,6 +77,32 @@ app.put("/settings", async (request, reply) => {
 });
 
 // ============================================================================
+// WHATSAPP INTEGRATION
+// ============================================================================
+
+app.get("/whatsapp/status", async (request, reply) => {
+  try {
+    const res = await fetch(`http://localhost:${appConfig.bot.port}/status`);
+    if (!res.ok) throw new Error("Bot returned non-OK status");
+    const data = await res.json();
+    return data;
+  } catch (error: any) {
+    return { status: "DISCONNECTED", qr: "", phone: "", error: error.message };
+  }
+});
+
+app.post("/whatsapp/logout", async (request, reply) => {
+  try {
+    const res = await fetch(`http://localhost:${appConfig.bot.port}/logout`, { method: "POST" });
+    if (!res.ok) throw new Error("Bot failed to logout");
+    const data = await res.json();
+    return data;
+  } catch (error: any) {
+    return reply.internalServerError(error.message);
+  }
+});
+
+// ============================================================================
 // DASHBOARD SUMMARY
 // ============================================================================
 
