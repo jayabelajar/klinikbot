@@ -1,0 +1,14 @@
+node_modules
+.pnpm-store
+.env
+.env.*
+!.env.example
+dist
+build
+.next
+coverage
+*.log
+apps/**/.next
+apps/**/node_modules
+packages/**/node_modules
+packages/database/generated

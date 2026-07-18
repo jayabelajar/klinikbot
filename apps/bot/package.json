@@ -1,0 +1,22 @@
+{
+  "name": "@klinikbot/bot",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/index.js",
+    "lint": "echo \"No lint configured for @klinikbot/bot\"",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "format": "echo \"No format script for @klinikbot/bot\""
+  },
+  "dependencies": {
+    "@klinikbot/config": "workspace:*",
+    "axios": "^1.7.9"
+  },
+  "devDependencies": {
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2"
+  }
+}

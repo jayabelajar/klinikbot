@@ -1,0 +1,133 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  ADMIN
+  RECEPTIONIST
+}
+
+enum Gender {
+  MALE
+  FEMALE
+}
+
+enum DoctorStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum PaymentType {
+  BPJS
+  UMUM
+}
+
+enum BookingStatus {
+  WAITING
+  CONFIRMED
+  QUEUE
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum QueueStatus {
+  WAITING
+  CALLED
+  SKIPPED
+  DONE
+}
+
+enum MessageDirection {
+  INBOUND
+  OUTBOUND
+}
+
+model User {
+  id        String   @id @default(cuid())
+  username  String   @unique
+  password  String
+  role      UserRole @default(RECEPTIONIST)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("users")
+}
+
+model Patient {
+  id        String    @id @default(cuid())
+  code      String    @unique
+  name      String
+  gender    Gender
+  birthDate DateTime  @map("birth_date")
+  phone     String    @unique
+  address   String?
+  bookings  Booking[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@map("patients")
+}
+
+model Doctor {
+  id             String       @id @default(cuid())
+  name           String
+  specialization String
+  schedule       String
+  status         DoctorStatus @default(ACTIVE)
+  bookings       Booking[]
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  @@map("doctors")
+}
+
+model Booking {
+  id          String        @id @default(cuid())
+  patientId   String        @map("patient_id")
+  doctorId    String        @map("doctor_id")
+  date        DateTime
+  time        String
+  complaint   String
+  paymentType PaymentType   @map("payment_type")
+  status      BookingStatus @default(WAITING)
+  queue       Queue?
+  patient     Patient       @relation(fields: [patientId], references: [id], onDelete: Restrict)
+  doctor      Doctor        @relation(fields: [doctorId], references: [id], onDelete: Restrict)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  @@index([patientId])
+  @@index([doctorId])
+  @@index([date, time])
+  @@map("bookings")
+}
+
+model Queue {
+  id          String      @id @default(cuid())
+  bookingId   String      @unique @map("booking_id")
+  queueNumber Int         @map("queue_number")
+  status      QueueStatus @default(WAITING)
+  booking     Booking     @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  @@index([queueNumber])
+  @@map("queues")
+}
+
+model Message {
+  id        String           @id @default(cuid())
+  phone     String
+  message   String
+  direction MessageDirection
+  createdAt DateTime         @default(now()) @map("created_at")
+
+  @@index([phone])
+  @@map("messages")
+}
